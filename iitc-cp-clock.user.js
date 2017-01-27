@@ -2,7 +2,7 @@
 // @id             iitc-plugin-cp-clock@youz
 // @name           IITC plugin: CheckPoint Clock
 // @category       Info
-// @version        0.1.0.20170127.2200
+// @version        0.1.0.20170127.2300
 // @namespace      https://github.com/youz/iitc
 // @author         youz
 // @downloadURL    http://youz.github.io/iitc/iitc-cp-clock.user.js
@@ -117,7 +117,7 @@ window.plugin.cpClock.showCPClock = function () {
         return;
     }
     var html = '<div id="cp_clock_panel">' +
-               '<div><canvas id="cp_clock_canvas" width="180" height="180"></canvas></div>' +
+               '<div align="center"><canvas id="cp_clock_canvas" width="200" height="200"></canvas></div>' +
                '<div><table style="font-size: 12px; color:' + window.plugin.cpClock.colors.times + '">' +
                '<tr><td>Next CP</td><td id="cp_clock_cp_next"></td></tr>' +
                '<tr><td>Remaining</td><td id="cp_clock_cp_rem"></td></tr>' +
@@ -129,7 +129,7 @@ window.plugin.cpClock.showCPClock = function () {
       dialogClass: 'ui-dialog-cp-clock',
       title: 'CheckPoint',
       id: 'cp_clock_dialog',
-      width: 200,
+      width: 228,
       closeCallback: function () {
           clearInterval(window.plugin.cpClock.timer);
           window.plugin.cpClock.clock = window.plugin.cpClock.timer = null;
