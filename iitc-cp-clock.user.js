@@ -59,7 +59,7 @@ window.plugin.cpClock.showCPClockOption = function () {
     var current_opt = window.plugin.cpClock.option;
     var applyopt = function (opt) {
         window.plugin.cpClock.option = opt;
-        dialog.css({'top':opt.top,'left':opt.left});
+        $('.ui-dialog-cp-clock').css({'top':opt.top,'left':opt.left});
         window.plugin.cpClock.dialog.dialog('close');
         window.plugin.cpClock.showCPClock();
     };
