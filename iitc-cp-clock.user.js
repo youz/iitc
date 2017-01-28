@@ -25,14 +25,14 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 // PLUGIN START ////////////////////////////////////////////////////////
 window.plugin.cpClock = function() {};
 var DEFAULT_OPTION = {
-	'width': 228,
-	'top': 0,
-	'left': 0,
+    'width': 228,
+    'top': 0,
+    'left': 0,
     'startup': false,
-	'color': {
-		'face': 'rgb(206, 255, 0)',
-		'elapsed': 'rgba(220, 190, 128, 0.6)',
-		'remaining': 'rgba(96, 190, 220, 0.8)',
+    'color': {
+        'face': 'rgb(206, 255, 0)',
+        'elapsed': 'rgba(220, 190, 128, 0.6)',
+        'remaining': 'rgba(96, 190, 220, 0.8)',
     }
 };
 
@@ -42,17 +42,17 @@ var CYCLE = 7*25*60*60;   //7 25 hour 'days' per cycle
 window.plugin.cpClock.option = DEFAULT_OPTION;
 
 window.plugin.cpClock.loadOption = function () {
-	var dataStr = localStorage['plugin-cp-clock'];
-	if (dataStr === undefined) return;
-	var data = JSON.parse(dataStr);
-	window.plugin.cpClock.option = data;
+    var dataStr = localStorage['plugin-cp-clock'];
+    if (dataStr === undefined) return;
+    var data = JSON.parse(dataStr);
+    window.plugin.cpClock.option = data;
 };
 
 window.plugin.cpClock.saveOption = function (data) {
     var e = $('.ui-dialog-cp-clock');
     window.plugin.cpClock.option.top = parseInt(e.css('top'));
     window.plugin.cpClock.option.left = parseInt(e.css('left'));
-	localStorage.setItem('plugin-cp-clock', JSON.stringify(window.plugin.cpClock.option));
+    localStorage.setItem('plugin-cp-clock', JSON.stringify(window.plugin.cpClock.option));
 };
 
 window.plugin.cpClock.showCPClockOption = function () {
@@ -208,7 +208,7 @@ window.plugin.cpClock.showCPClock = function () {
       closeCallback: function () {
           clearInterval(window.plugin.cpClock.timer);
           window.plugin.cpClock.clock = window.plugin.cpClock.timer = null;
-		  window.plugin.cpClock.saveOption();
+          window.plugin.cpClock.saveOption();
           window.plugin.cpClock.dialog = null;
       }
     });
