@@ -2,7 +2,7 @@
 // @id             iitc-plugin-cp-clock@youz
 // @name           IITC plugin: CheckPoint Clock
 // @category       Info
-// @version        0.1.0.20170127.2300
+// @version        0.1.1.20170128.2300
 // @namespace      https://github.com/youz/iitc
 // @author         youz
 // @downloadURL    http://youz.github.io/iitc/iitc-cp-clock.user.js
@@ -24,15 +24,81 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 // PLUGIN START ////////////////////////////////////////////////////////
 window.plugin.cpClock = function() {};
-window.plugin.cpClock.colors = {
-    'face': 'rgb(206, 255, 0)',
-    'elapsed': 'rgba(220, 190, 128, 0.6)',
-    'remaining': 'rgba(96, 190, 220, 0.8)',
-    'times': 'rgb(255, 206, 0)',
+var DEFAULT_OPTION = {
+	'width': 228,
+	'top': 0,
+	'left': 0,
+    'startup': false,
+	'color': {
+		'face': 'rgb(206, 255, 0)',
+		'elapsed': 'rgba(220, 190, 128, 0.6)',
+		'remaining': 'rgba(96, 190, 220, 0.8)',
+    }
 };
 
 var CHECKPOINT = 5*60*60; //5 hours per checkpoint
 var CYCLE = 7*25*60*60;   //7 25 hour 'days' per cycle
+
+window.plugin.cpClock.option = DEFAULT_OPTION;
+
+window.plugin.cpClock.loadOption = function () {
+	var dataStr = localStorage['plugin-cp-clock'];
+	if (dataStr === undefined) return;
+	var data = JSON.parse(dataStr);
+	window.plugin.cpClock.option = data;
+};
+
+window.plugin.cpClock.saveOption = function (data) {
+	localStorage.setItem('plugin-cp-clock', JSON.stringify(window.plugin.cpClock.option));
+};
+
+window.plugin.cpClock.showCPClockOption = function () {
+    var current_opt = window.plugin.cpClock.option;
+    var applyopt = function (opt) {
+        window.plugin.cpClock.option = opt;
+        window.plugin.cpClock.dialog.dialog('close');
+        window.plugin.cpClock.showCPClock();
+    };
+    var parseopt = function () {
+        var o = {};
+        try {
+            o = JSON.parse($('#cp_clock_opt_json').val());
+        } catch (e) {
+            alert("Parse Error");
+            return null;
+        }
+        return o;
+    }
+    dialog({
+        html: '<div align="center"><textarea id="cp_clock_opt_json" cols="44" rows="12">'
+              + JSON.stringify(window.plugin.cpClock.option, null, 2)
+              + '</textarea>',
+        dialogClass: 'ui-dialog-cp-clock-option',
+        id: 'cp_clock_opt',
+        title: 'CPClock Options',
+        modal: true,
+        width: 360,
+        buttons: {
+            'Apply': function() {
+                var o = parseopt();
+                if (o) applyopt(o);
+            },
+            'Reset': function () {
+                $('#cp_clock_opt_json').val(JSON.stringify(current_opt, null, 2));
+                applyopt(current_opt);
+            },
+            'Default': function () {
+                $('#cp_clock_opt_json').val(JSON.stringify(DEFAULT_OPTION, null, 2));
+                applyopt(DEFAULT_OPTION);
+            }
+        },
+        closeCallback: function () {
+            var o = parseopt();
+            if (o) applyopt(o);
+            window.plugin.cpClock.saveOption();
+        }
+    });
+}
 
 window.plugin.cpClock.AnalogClock = function (canvas, colors) {
     this.canvas = canvas;
@@ -116,34 +182,45 @@ window.plugin.cpClock.showCPClock = function () {
     if (typeof window.plugin.cpClock.timer !==  'undefined' && window.plugin.cpClock.timer !== null) {
         return;
     }
+    var o = window.plugin.cpClock.option;
     var html = '<div id="cp_clock_panel">' +
-               '<div align="center"><canvas id="cp_clock_canvas" width="200" height="200"></canvas></div>' +
-               '<div><table style="font-size: 12px; color:' + window.plugin.cpClock.colors.times + '">' +
+               '<div align="center"><canvas id="cp_clock_canvas" width="' +
+               (o.width - 40) + '" height="' + (o.width-40) + '"></canvas></div>' +
+               '<div><table style="font-size: 12px; color: rgb(255, 206, 0)">' +
                '<tr><td>Next CP</td><td id="cp_clock_cp_next"></td></tr>' +
                '<tr><td>Remaining</td><td id="cp_clock_cp_rem"></td></tr>' +
                '<tr><td>Cycle start</td><td id="cp_clock_cycle_start"></td></tr>' +
                '<tr><td>Cycle end</td><td id="cp_clock_cycle_end"></td></tr>' +
                '</table></div></div>';
-    dialog({
+    window.plugin.cpClock.dialog = dialog({
       html: html,
       dialogClass: 'ui-dialog-cp-clock',
       title: 'CheckPoint',
       id: 'cp_clock_dialog',
-      width: 228,
+      width: o.width,
+      buttons: {
+          'Option': window.plugin.cpClock.showCPClockOption
+      },
       closeCallback: function () {
           clearInterval(window.plugin.cpClock.timer);
           window.plugin.cpClock.clock = window.plugin.cpClock.timer = null;
+		  window.plugin.cpClock.saveOption();
+          window.plugin.cpClock.dialog = null;
       }
     });
+    $('.ui-dialog-cp-clock').css({'top':o.top,'left':o.left});
     $('.ui-dialog-cp-clock').find('.ui-dialog-titlebar').css('min-width', 150);
-    window.plugin.cpClock.clock = new window.plugin.cpClock.AnalogClock($('#cp_clock_canvas')[0], window.plugin.cpClock.colors);
+    window.plugin.cpClock.clock = new window.plugin.cpClock.AnalogClock($('#cp_clock_canvas')[0], o.color);
     window.plugin.cpClock.update();
     window.plugin.cpClock.timer = setInterval(window.plugin.cpClock.update, 1000);
 };
 
 window.plugin.cpClock.setup  = function() {
+    window.plugin.cpClock.loadOption();
     $('#toolbox').append('<a onclick="window.plugin.cpClock.showCPClock()">CP clock</a>');
-    // window.plugin.cpClock.showCPClock();
+    if (window.plugin.cpClock.option.startup) {
+        window.plugin.cpClock.showCPClock();
+    }
 };
 
 var setup =  window.plugin.cpClock.setup;
