@@ -5,7 +5,7 @@
 // @version        0.1.1.20170128.2300
 // @namespace      https://github.com/youz/iitc
 // @author         youz
-// @downloadURL    http://youz.github.io/iitc/iitc-cp-clock.user.js
+// @downloadURL    https://youz.github.io/iitc/iitc-cp-clock.user.js
 // @description    Display a clock showing times for the next/previous checkpoint.
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*
