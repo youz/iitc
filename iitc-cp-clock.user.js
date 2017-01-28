@@ -49,6 +49,9 @@ window.plugin.cpClock.loadOption = function () {
 };
 
 window.plugin.cpClock.saveOption = function (data) {
+    var e = $('.ui-dialog-cp-clock');
+    window.plugin.cpClock.option.top = parseInt(e.css('top'));
+    window.plugin.cpClock.option.left = parseInt(e.css('left'));
 	localStorage.setItem('plugin-cp-clock', JSON.stringify(window.plugin.cpClock.option));
 };
 
@@ -56,6 +59,7 @@ window.plugin.cpClock.showCPClockOption = function () {
     var current_opt = window.plugin.cpClock.option;
     var applyopt = function (opt) {
         window.plugin.cpClock.option = opt;
+        dialog.css({'top':o.top,'left':o.left});
         window.plugin.cpClock.dialog.dialog('close');
         window.plugin.cpClock.showCPClock();
     };
@@ -68,7 +72,7 @@ window.plugin.cpClock.showCPClockOption = function () {
             return null;
         }
         return o;
-    }
+    };
     dialog({
         html: '<div align="center"><textarea id="cp_clock_opt_json" cols="44" rows="12">'
               + JSON.stringify(window.plugin.cpClock.option, null, 2)
@@ -98,7 +102,7 @@ window.plugin.cpClock.showCPClockOption = function () {
             window.plugin.cpClock.saveOption();
         }
     });
-}
+};
 
 window.plugin.cpClock.AnalogClock = function (canvas, colors) {
     this.canvas = canvas;
@@ -209,6 +213,9 @@ window.plugin.cpClock.showCPClock = function () {
       }
     });
     $('.ui-dialog-cp-clock').css({'top':o.top,'left':o.left});
+    window.plugin.cpClock.dialog.on('dialogdragstop', function () {
+        window.plugin.cpClock.saveOption();
+    });
     $('.ui-dialog-cp-clock').find('.ui-dialog-titlebar').css('min-width', 150);
     window.plugin.cpClock.clock = new window.plugin.cpClock.AnalogClock($('#cp_clock_canvas')[0], o.color);
     window.plugin.cpClock.update();
