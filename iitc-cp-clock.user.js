@@ -56,7 +56,7 @@ window.plugin.cpClock.saveOption = function (data) {
 };
 
 window.plugin.cpClock.showCPClockOption = function () {
-    var current_opt = window.plugin.cpClock.option;
+    var backup = window.plugin.cpClock.option;
     var applyopt = function (opt) {
         window.plugin.cpClock.option = opt;
         $('.ui-dialog-cp-clock').css({'top':opt.top,'left':opt.left});
@@ -88,8 +88,8 @@ window.plugin.cpClock.showCPClockOption = function () {
                 if (o) applyopt(o);
             },
             'Reset': function () {
-                $('#cp_clock_opt_json').val(JSON.stringify(current_opt, null, 2));
-                applyopt(current_opt);
+                $('#cp_clock_opt_json').val(JSON.stringify(backup, null, 2));
+                applyopt(backup);
             },
             'Default': function () {
                 $('#cp_clock_opt_json').val(JSON.stringify(DEFAULT_OPTION, null, 2));
@@ -183,13 +183,13 @@ window.plugin.cpClock.update = function() {
 };
 
 window.plugin.cpClock.showCPClock = function () {
-    if (typeof window.plugin.cpClock.timer !==  'undefined' && window.plugin.cpClock.timer !== null) {
+    if (typeof window.plugin.cpClock.dialog !==  'undefined' && window.plugin.cpClock.dialog !== null) {
         return;
     }
     var o = window.plugin.cpClock.option;
     var html = '<div id="cp_clock_panel">' +
                '<div align="center"><canvas id="cp_clock_canvas" width="' +
-               (o.width - 40) + '" height="' + (o.width-40) + '"></canvas></div>' +
+               (o.width - 40) + '" height="' + (o.width - 40) + '"></canvas></div>' +
                '<div><table style="font-size: 12px; color: rgb(255, 206, 0)">' +
                '<tr><td>Next CP</td><td id="cp_clock_cp_next"></td></tr>' +
                '<tr><td>Remaining</td><td id="cp_clock_cp_rem"></td></tr>' +
@@ -208,7 +208,6 @@ window.plugin.cpClock.showCPClock = function () {
       closeCallback: function () {
           clearInterval(window.plugin.cpClock.timer);
           window.plugin.cpClock.clock = window.plugin.cpClock.timer = null;
-          window.plugin.cpClock.saveOption();
           window.plugin.cpClock.dialog = null;
       }
     });
