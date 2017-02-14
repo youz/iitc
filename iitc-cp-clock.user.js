@@ -2,7 +2,7 @@
 // @id             iitc-plugin-cp-clock@youz
 // @name           IITC plugin: CheckPoint Clock
 // @category       Info
-// @version        0.1.2.20170214.0000
+// @version        0.1.2.20170215.0000
 // @namespace      https://github.com/youz/iitc
 // @author         youz
 // @downloadURL    https://youz.github.io/iitc/iitc-cp-clock.user.js
