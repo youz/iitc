@@ -29,7 +29,7 @@ var DEFAULT_OPTION = {
     'top': 0,
     'left': 0,
     'startup': false,
-    'countdown': 30,
+    'countdown_type': 0, // 0: off, 1: for cp, 2: for shard-jump
     'color': {
         'face': 'rgb(206, 255, 0)',
         'elapsed': 'rgba(220, 190, 128, 0.6)',
@@ -106,10 +106,10 @@ window.plugin.cpClock.showCPClockOption = function () {
     });
 };
 
-window.plugin.cpClock.AnalogClock = function (canvas, colors, countdown) {
+window.plugin.cpClock.AnalogClock = function (canvas, colors, countdown_type) {
     this.canvas = canvas;
     this.colors = colors;
-    this.countdown = Math.min(countdown, 60);
+    this.countdown_type = countdown_type;
     var w = this.canvas.width;
     var h = this.canvas.height;
     this.ctx = this.canvas.getContext('2d');
@@ -165,8 +165,17 @@ window.plugin.cpClock.AnalogClock.prototype = {
       var h = (now.getHours() + now.getMinutes()/60) * Math.PI / 6;
       this.fillArc(48, cpstart.getHours() * Math.PI / 6, h, this.colors.elapsed);
       this.fillArc(48, h, cpend.getHours() * Math.PI / 6, this.colors.remaining);
-      if ((cpend - now) / 1000 <= this.countdown) {
-          this.fillArc(48, now.getSeconds() * Math.PI / 30, 2 * Math.PI, this.colors.countdown);
+      switch (this.countdown_type) {
+          case 1:
+            if (cpend - now <= 60000) {
+                this.fillArc(48, now.getSeconds() * Math.PI / 30, 0, this.colors.countdown);
+            }
+            break;
+          case 2:
+            if (cpend - now <= 30000 || now - cpstart <= 30000) {
+                this.fillArc(48, now.getSeconds() * Math.PI / 30, Math.PI, this.colors.countdown);
+            }
+            break;
       }
       this.drawFace(this.colors.face);
       this.drawHand(3, 30, h, this.colors.face);
@@ -222,7 +231,7 @@ window.plugin.cpClock.showCPClock = function () {
         window.plugin.cpClock.saveOption();
     });
     $('.ui-dialog-cp-clock').find('.ui-dialog-titlebar').css('min-width', 150);
-    window.plugin.cpClock.clock = new window.plugin.cpClock.AnalogClock($('#cp_clock_canvas')[0], o.color, o.countdown);
+    window.plugin.cpClock.clock = new window.plugin.cpClock.AnalogClock($('#cp_clock_canvas')[0], o.color, o.countdown_type);
     window.plugin.cpClock.update();
     window.plugin.cpClock.timer = setInterval(window.plugin.cpClock.update, 1000);
 };
