@@ -39,13 +39,13 @@ var DEFAULT_OPTION = {
 var CHECKPOINT = 5*60*60; //5 hours per checkpoint
 var CYCLE = 7*25*60*60;   //7 25 hour 'days' per cycle
 
-window.plugin.cpClock.option = DEFAULT_OPTION;
+window.plugin.cpClock.option = {};
 
 window.plugin.cpClock.loadOption = function () {
     var dataStr = localStorage['plugin-cp-clock'];
     if (dataStr === undefined) return;
     var data = JSON.parse(dataStr);
-    window.plugin.cpClock.option = data;
+    window.plugin.cpClock.option = $.extend(true, {}, DEFAULT_OPTION, data);
 };
 
 window.plugin.cpClock.saveOption = function (data) {
@@ -58,7 +58,7 @@ window.plugin.cpClock.saveOption = function (data) {
 window.plugin.cpClock.showCPClockOption = function () {
     var backup = window.plugin.cpClock.option;
     var applyopt = function (opt) {
-        window.plugin.cpClock.option = opt;
+        window.plugin.cpClock.option = $.extend(true, {}, DEFAULT_OPTION, opt);
         $('.ui-dialog-cp-clock').css({'top':opt.top,'left':opt.left});
         window.plugin.cpClock.dialog.dialog('close');
         window.plugin.cpClock.showCPClock();
