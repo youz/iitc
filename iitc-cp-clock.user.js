@@ -29,10 +29,12 @@ var DEFAULT_OPTION = {
     'top': 0,
     'left': 0,
     'startup': false,
+    'countdown': 30,
     'color': {
         'face': 'rgb(206, 255, 0)',
         'elapsed': 'rgba(220, 190, 128, 0.6)',
         'remaining': 'rgba(96, 190, 220, 0.8)',
+        'countdown': 'rgba(255, 0, 0, 0.9)'
     }
 };
 
@@ -48,7 +50,7 @@ window.plugin.cpClock.loadOption = function () {
     window.plugin.cpClock.option = $.extend(true, {}, DEFAULT_OPTION, data);
 };
 
-window.plugin.cpClock.saveOption = function (data) {
+window.plugin.cpClock.saveOption = function () {
     var e = $('.ui-dialog-cp-clock');
     window.plugin.cpClock.option.top = parseInt(e.css('top'));
     window.plugin.cpClock.option.left = parseInt(e.css('left'));
@@ -104,9 +106,10 @@ window.plugin.cpClock.showCPClockOption = function () {
     });
 };
 
-window.plugin.cpClock.AnalogClock = function (canvas, colors) {
+window.plugin.cpClock.AnalogClock = function (canvas, colors, countdown) {
     this.canvas = canvas;
     this.colors = colors;
+    this.countdown = Math.min(countdown, 60);
     var w = this.canvas.width;
     var h = this.canvas.height;
     this.ctx = this.canvas.getContext('2d');
@@ -160,8 +163,11 @@ window.plugin.cpClock.AnalogClock.prototype = {
   update: function (now, cpstart, cpend) {
       this.ctx.clearRect(-50, -50, 100, 100);
       var h = (now.getHours() + now.getMinutes()/60) * Math.PI / 6;
-      this.fillArc(48, cpstart * Math.PI / 6, h, this.colors.elapsed);
-      this.fillArc(48, h, cpend * Math.PI / 6, this.colors.remaining);
+      this.fillArc(48, cpstart.getHours() * Math.PI / 6, h, this.colors.elapsed);
+      this.fillArc(48, h, cpend.getHours() * Math.PI / 6, this.colors.remaining);
+      if ((cpend - now) / 1000 <= this.countdown) {
+          this.fillArc(48, now.getSeconds() * Math.PI / 30, 2 * Math.PI, this.colors.countdown);
+      }
       this.drawFace(this.colors.face);
       this.drawHand(3, 30, h, this.colors.face);
       this.drawHand(2, 40, (now.getMinutes() + now.getSeconds()/60) * Math.PI / 30, this.colors.face);
@@ -175,7 +181,7 @@ window.plugin.cpClock.update = function() {
     var cycleEnd = cycleStart + CYCLE*1000;
     var cpStart = Math.floor(now / (CHECKPOINT*1000)) * (CHECKPOINT*1000);
     var cpEnd = cpStart + CHECKPOINT*1000;
-    window.plugin.cpClock.clock.update(now, new Date(cpStart).getHours(), new Date(cpEnd).getHours());
+    window.plugin.cpClock.clock.update(now, new Date(cpStart), new Date(cpEnd));
     $('#cp_clock_cp_next').html(unixTimeToString(cpEnd, true).replace(/:00$/,''));
     $('#cp_clock_cp_rem').html(new Date(cpEnd - now + 1000).toLocaleTimeString('en-GB',{ timeZone: 'UTC',}));
     $('#cp_clock_cycle_start').html(unixTimeToString(cycleStart, true).replace(/:00$/,''));
@@ -216,7 +222,7 @@ window.plugin.cpClock.showCPClock = function () {
         window.plugin.cpClock.saveOption();
     });
     $('.ui-dialog-cp-clock').find('.ui-dialog-titlebar').css('min-width', 150);
-    window.plugin.cpClock.clock = new window.plugin.cpClock.AnalogClock($('#cp_clock_canvas')[0], o.color);
+    window.plugin.cpClock.clock = new window.plugin.cpClock.AnalogClock($('#cp_clock_canvas')[0], o.color, o.countdown);
     window.plugin.cpClock.update();
     window.plugin.cpClock.timer = setInterval(window.plugin.cpClock.update, 1000);
 };
